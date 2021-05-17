@@ -1,4 +1,4 @@
-module github.com/roman-mazur/design-practice-2-template
+module github.com/Kolbasen/design-practice-2
 
 go 1.15
 

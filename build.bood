@@ -1,37 +1,37 @@
-go_binary {
+go_tested_binary {
   name: "server",
   // TODO: Відкорегуйте ім'я пакета.
-  pkg: "github.com/roman-mazur/design-practice-2-template/cmd/server",
+  pkg: "github.com/Kolbasen/design-practice-2/cmd/server",
   srcs: [
     "httptools/**/*.go",
     "signal/**/*.go",
     "cmd/server/*.go"
   ],
-
   srcsExclude: [
     "cmd/server/*_test.go"
   ],
-  testSrcs: [
-    "cmd/server/*_test.go"
-  ]
+  testPkg: "github.com/Kolbasen/design-practice-2/cmd/server"
 }
 
-go_binary {
+go_tested_binary {
   name: "lb",
   // TODO: Відкорегуйте ім'я пакета.
-  pkg: "github.com/roman-mazur/design-practice-2-template/cmd/lb",
+  pkg: "github.com/Kolbasen/design-practice-2/cmd/lb",
   srcs: [
     "httptools/**/*.go",
     "signal/**/*.go",
-    "cmd/lb/*.go"
-  ]
+    "cmd/lb/*.go",
+  ],
   // TODO: Додайте запуск тестів для балансувальника.
-    srcsExclude: [
+  srcsExclude: [
     "cmd/lb/*_test.go"
   ],
-  testSrcs: [
-    "cmd/lb/*_test.go"
-  ]
+  testPkg: "github.com/Kolbasen/design-practice-2/cmd/lb"
 }
 
 // TODO: Додайте модуль для інтеграційних тестів.
+go_tested_binary {
+  name: "integration",
+  pkg: "github.com/Kolbasen/design-practice-2/integration",
+  testPkg: "github.com/Kolbasen/design-practice-2/integration",
+}

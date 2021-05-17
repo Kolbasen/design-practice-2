@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/roman-mazur/design-practice-2-template/httptools"
-	"github.com/roman-mazur/design-practice-2-template/signal"
+	"github.com/Kolbasen/design-practice-2/httptools"
+	"github.com/Kolbasen/design-practice-2/signal"
 )
 
 type Server struct {
