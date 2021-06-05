@@ -19,14 +19,14 @@ func TestBalancer(t *testing.T) {
 	
 	// The same server should response for the same endpoint
 	// endpoint "some-data"
-	resp, err := client.Get(fmt.Sprintf("%s/api/v1/some-data", baseAddress));
+	resp, err := client.Get(fmt.Sprintf("%s/api/v1/some-data?key=kfcteam", baseAddress));
 	if err != nil {
 		assert.Equal(t, nil, err)
 		return;
 	}
 	serverSelected := resp.Header.Get("lb-from");
 	for i := 0; i < 9; i++ {
-		resp, err := client.Get(fmt.Sprintf("%s/api/v1/some-data", baseAddress));
+		resp, err := client.Get(fmt.Sprintf("%s/api/v1/some-data?key=kfcteam", baseAddress));
 		if err != nil {
 			assert.Equal(t, nil, err)
 			return;
@@ -35,14 +35,14 @@ func TestBalancer(t *testing.T) {
 	}
 
 	// endpoint "another-data"
-	resp, err = client.Get(fmt.Sprintf("%s/api/v1/another-data", baseAddress));
+	resp, err = client.Get(fmt.Sprintf("%s/api/v1/another-data?key=kfcteam", baseAddress));
 	if err != nil {
 		assert.Equal(t, nil, err)
 		return;
 	}
 	serverSelected = resp.Header.Get("lb-from");
 	for i := 0; i < 9; i++ {
-		resp, err := client.Get(fmt.Sprintf("%s/api/v1/another-data", baseAddress));
+		resp, err := client.Get(fmt.Sprintf("%s/api/v1/another-data?key=kfcteam", baseAddress));
 		if err != nil {
 			assert.Equal(t, nil, err)
 			return;
@@ -58,7 +58,7 @@ func TestBalancer(t *testing.T) {
 	}
 	serverSelected = resp.Header.Get("lb-from");
 	for i := 0; i < 9; i++ {
-		resp, err := client.Get(fmt.Sprintf("%s/api/v1/last-data", baseAddress));
+		resp, err := client.Get(fmt.Sprintf("%s/api/v1/last-data?key=kfcteam", baseAddress));
 		if err != nil {
 			assert.Equal(t, nil, err)
 			return;
@@ -69,19 +69,19 @@ func TestBalancer(t *testing.T) {
 
 func BenchmarkBalancer(b *testing.B) {
 	for n := 0; n < 100; n++ {
-		_, err := client.Get(fmt.Sprintf("%s/api/v1/some-data", baseAddress))
+		_, err := client.Get(fmt.Sprintf("%s/api/v1/some-data?key=kfcteam", baseAddress))
 		if err != nil {
 			assert.Equal(b, nil, err)
 			return;
 		}
 
-		_, err = client.Get(fmt.Sprintf("%s/api/v1/another-data", baseAddress))
+		_, err = client.Get(fmt.Sprintf("%s/api/v1/another-data?key=kfcteam", baseAddress))
 		if err != nil {
 			assert.Equal(b, nil, err)
 			return;
 		}
 
-		_, err = client.Get(fmt.Sprintf("%s/api/v1/last-data", baseAddress))
+		_, err = client.Get(fmt.Sprintf("%s/api/v1/last-data?key=kfcteam", baseAddress))
 		if err != nil {
 			assert.Equal(b, nil, err)
 			return;
