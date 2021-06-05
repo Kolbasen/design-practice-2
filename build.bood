@@ -35,3 +35,9 @@ go_tested_binary {
   pkg: "github.com/Kolbasen/design-practice-2/integration",
   testPkg: "github.com/Kolbasen/design-practice-2/integration",
 }
+
+go_tested_binary {
+  name: "db",
+  pkg: "github.com/Kolbasen/design-practice-2/cmd/db",
+  testPkg: "github.com/AKolbasen/design-practice-2/cmd/integration",
+}
