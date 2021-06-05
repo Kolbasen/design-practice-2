@@ -3,33 +3,29 @@ package datastore
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
+const segmentSize = 10240
+
+var pairs = [][]string{
+	{"key1", "value1"},
+	{"key2", "value2"},
+	{"key3", "value3"},
+}
+
 func TestDb_Put(t *testing.T) {
-	dir, err := ioutil.TempDir("", "test-db")
+	dir, err := ioutil.TempDir("", "test-db-put")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
-	db, err := NewDb(dir)
+	db, err := NewDb(dir, segmentSize)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
-
-	pairs := [][]string {
-		{"key1", "value1"},
-		{"key2", "value2"},
-		{"key3", "value3"},
-	}
-
-	outFile, err := os.Open(filepath.Join(dir, outFileName))
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	t.Run("put/get", func(t *testing.T) {
 		for _, pair := range pairs {
@@ -47,33 +43,11 @@ func TestDb_Put(t *testing.T) {
 		}
 	})
 
-	outInfo, err := outFile.Stat()
-	if err != nil {
-		t.Fatal(err)
-	}
-	size1 := outInfo.Size()
-
-	t.Run("file growth", func(t *testing.T) {
-		for _, pair := range pairs {
-			err := db.Put(pair[0], pair[1])
-			if err != nil {
-				t.Errorf("Cannot put %s: %s", pairs[0], err)
-			}
-		}
-		outInfo, err := outFile.Stat()
-		if err != nil {
-			t.Fatal(err)
-		}
-		if size1 * 2 != outInfo.Size() {
-			t.Errorf("Unexpected size (%d vs %d)", size1, outInfo.Size())
-		}
-	})
-
 	t.Run("new db process", func(t *testing.T) {
 		if err := db.Close(); err != nil {
 			t.Fatal(err)
 		}
-		db, err = NewDb(dir)
+		db, err = NewDb(dir, segmentSize)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -89,4 +63,38 @@ func TestDb_Put(t *testing.T) {
 		}
 	})
 
+}
+
+func TestDb_Delete(t *testing.T) {
+	dir, err := ioutil.TempDir("", "test-db-delete")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	db, err := NewDb(dir, segmentSize)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	t.Run("delete/get", func(t *testing.T) {
+		for _, pair := range pairs {
+
+			err := db.Put(pair[0], pair[1])
+			if err != nil {
+				t.Errorf("Cannot put %s: %s", pairs[0], err)
+			}
+
+			err = db.Delete(pair[0])
+			if err != nil {
+				t.Errorf("Cannot delete %s: %s", pairs[0], err)
+			}
+
+			_, err = db.Get(pair[0])
+			if err == nil {
+				t.Errorf("Value not delete %s", pairs[0])
+			}
+		}
+	})
 }

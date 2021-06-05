@@ -124,6 +124,7 @@ func (sgm *Segment) GetAllData() (map[string]string, error) {
 
 func (sgm *Segment) Get(key string) (string, error) {
 	position, ok := sgm.index[key]
+
 	if !ok {
 		return "", ErrNotFound
 	}
@@ -177,11 +178,6 @@ func (sgm *Segment) writingLoop() error {
 			sgm.index[data.key] = sgm.outOffset
 		}
 		sgm.outOffset += int64(n)
-
-		if sgm.outOffset > sgm.size {
-			sgm.out.Close()
-			sgm.out = nil
-		}
 
 		channelData.errorChannel <- err
 

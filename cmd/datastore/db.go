@@ -61,21 +61,21 @@ func (db *Db) createDbSegment() (*Segment, error) {
 
 	db.segments = append(db.segments, sgm)
 
-	if len(db.segments) > 2 {
+	if len(db.segments) > mergingSegmentsNum {
 		go db.mergeDbSegments()
 	}
 	return sgm, err
 }
 
 func (db *Db) mergeDbSegments() error {
+	db.mutex.Lock()
+	defer db.mutex.Unlock()
+
 	if db.mergeInProgress == true {
 		return nil
 	}
 
 	db.mergeInProgress = true
-
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
 
 	mergeList := db.segments[0:mergingSegmentsNum]
 
@@ -184,9 +184,6 @@ func (db *Db) Close() error {
 }
 
 func (db *Db) Get(key string) (string, error) {
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
-
 	sgms := db.segments
 
 	for _, sgm := range sgms {
@@ -195,12 +192,12 @@ func (db *Db) Get(key string) (string, error) {
 		if err == nil {
 			return val, nil
 		}
-		if err == ErrNotFound {
-			return "", ErrNotFound
+		if err != ErrNotFound {
+			return "", err
 		}
 	}
 
-	return "", ErrNotFound
+	return "", fmt.Errorf("Some end error")
 }
 
 func (db *Db) Put(key, value string) error {
@@ -208,13 +205,14 @@ func (db *Db) Put(key, value string) error {
 		key:   key,
 		value: value,
 	}
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
 
 	currentSegment := db.segments[len(db.segments)-1]
 
-	if currentSegment.out == nil {
+	currentOffset := currentSegment.outOffset
+
+	if currentOffset+int64(len(value)) > db.segmentSize {
 		currentSegment.removeWritingLoop()
+		currentSegment.out.Close()
 		sgm, err := db.createDbSegment()
 
 		if err != nil {
