@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
+	"time"
 )
 
 const KB = 1024
-const numOfSegments = 2
+const numOfSegments = 3
 
 func createUniqueString(i int) string {
 	return fmt.Sprintf("%010d", i)
@@ -37,8 +37,10 @@ func Test_Segment(t *testing.T) {
 		}
 	}
 
-	if len(db.segments) != numOfSegments {
-		t.Error("Enought segmens are not created")
+	time.Sleep(time.Duration(100 * time.Millisecond))
+
+	if len(db.segments) != 2 {
+		t.Error("Segments are not merged")
 	}
 
 	for i := 0; i < dataIteration; i++ {
@@ -52,19 +54,9 @@ func Test_Segment(t *testing.T) {
 		}
 	}
 
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			t.Errorf("Walking error: %s", err)
-		}
+	files, err := ioutil.ReadDir(dir)
 
-		if info.IsDir() {
-			return nil
-		}
-		t.Log(info.Size())
-		if info.Size() > KB {
-			t.Errorf("segment %s: size is %d, but expected to be less than %d", path, info.Size(), KB)
-		}
-		return nil
-	})
-
+	if len(files) > 2 {
+		t.Error("Too many file in dir")
+	}
 }

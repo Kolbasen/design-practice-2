@@ -68,6 +68,7 @@ func (db *Db) createDbSegment() (*Segment, error) {
 }
 
 func (db *Db) mergeDbSegments() error {
+
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
 
@@ -96,16 +97,10 @@ func (db *Db) mergeDbSegments() error {
 				data[key] = val
 			}
 		}
-
-		err1 := os.Remove(sgm.outPath)
-
-		if err1 != nil {
-			return err1
-		}
-
 	}
 
-	sgm, err := NewSegment(true, mergeList[0].outPath+mergeList[1].outPath, db.segmentSize)
+	systemSegmentPath := filepath.Join(db.dir, "system-segment")
+	sgm, err := NewSegment(true, systemSegmentPath, db.segmentSize)
 
 	if err != nil {
 		return err
@@ -128,8 +123,23 @@ func (db *Db) mergeDbSegments() error {
 
 	sgm.removeWritingLoop()
 
-	segments := append([]*Segment{sgm}, db.segments[mergingSegmentsNum:]...)
+	segments := []*Segment{sgm}
+
+	for _, seg := range db.segments[mergingSegmentsNum:] {
+		segments = append(segments, seg)
+	}
+
+	fmt.Println(len(segments))
+
 	db.segments = segments
+
+	for _, sgm := range mergeList {
+		err := os.Remove(sgm.outPath)
+
+		if err != nil {
+			return err
+		}
+	}
 
 	db.mergeInProgress = false
 	return nil
