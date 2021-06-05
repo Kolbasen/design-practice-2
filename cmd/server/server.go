@@ -3,9 +3,13 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Kolbasen/design-practice-2/httptools"
@@ -22,7 +26,7 @@ func main() {
 	url := fmt.Sprintf("%s/db/teamkfc", dbUrl)
 	body := fmt.Sprintf(`{"value":"%s"}`, time.Now().Format("01-01-2001"))
 	body += "\n"
-	req, err := http.Post(url, "application/json", strings.NewReader(body))
+	_, err := http.Post(url, "application/json", strings.NewReader(body))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,7 +58,7 @@ func main() {
 		defer res.Body.Close()
 		_, err = io.Copy(rw, res.Body)
 		if err != nil {
-			log.Printf(err)
+			log.Printf("%s", err)
 		}
 	})
 

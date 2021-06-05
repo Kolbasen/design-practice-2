@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
 	"github.com/Kolbasen/design-practice-2/cmd/datastore"
 	"github.com/Kolbasen/design-practice-2/httptools"
 	"github.com/Kolbasen/design-practice-2/signal"
+	"github.com/gorilla/mux"
 )
-
 
 var port = flag.Int("p", 8000, "port")
 var path = flag.String("d", ".db", "db path")
 var segmentSize = flag.Int("s", 10*MB, "segment size")
+
 const teamName = "kfcteam"
 const MB = 1024 * 1024
 
@@ -34,13 +34,13 @@ func main() {
 
 	err := os.MkdirAll(*path, os.ModePerm)
 	if err != nil {
-		log.Fatalf(err)
+		log.Printf("%s", err)
 		return
 	}
 
 	db, err := datastore.NewDb(*path, int64(*segmentSize))
 	if err != nil {
-		log.Fatalf(err)
+		log.Printf("%s", err)
 		return
 	}
 
@@ -80,15 +80,15 @@ func main() {
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
 			return
-		} 
+		}
 
 		rw.WriteHeader(http.StatusOK)
 
 		res := Response{key, value}
-		err := json.NewEncoder(rw).Encode(&res)
+		err1 := json.NewEncoder(rw).Encode(&res)
 
-		if err != nil {
-			log.Printf(err)
+		if err1 != nil {
+			log.Printf("%s", err1)
 		}
 	}).Methods("GET")
 
